@@ -36,12 +36,12 @@ draw_square:
     xor cx, cx                      ; Resets CX
     mov cl, dh                      ; Copy length of line
 
-    xor di, di
+    xor di, di                      ; Resets DI to the screen origin
     push ax
     xor ax, ax
-    mov al, bh
-    shl al, 1
-    add di, ax
+    mov al, bh                      ; Copy position of line start
+    shl al, 1                       ; Multiplies by two because chars are two bytes
+    add di, ax                      ; Adds the offset to DI
     pop ax
 draw_char:
     stosw

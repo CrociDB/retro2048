@@ -26,6 +26,18 @@ clear:
     push 160 * 5                ; Offset 7 lines on top
     call draw_box
 
+    ; Game title
+    mov ah, 0x6c
+    mov bp, title_string
+    mov cx, 64
+    call print_string
+
+    ; Credits
+    mov ah, 0x0c
+    mov bp, credits_string
+    mov cx, 3948
+    call print_string
+
 main_loop:
     jmp exit
 
@@ -61,5 +73,31 @@ draw_char:
     jnz draw_box                    ; If not zero, draw the rest of the box
     ret
 
+
+    ;
+    ; Print string function
+    ; Params:   AH - background/foreground color
+    ;           BP - string addr
+    ;           CX - position/offset
+    ;
+print_string:
+    mov di, cx
+    mov al, byte [bp]
+    cmp al, 0
+    jz _0
+    stosw
+    add cx, 2
+    inc bp
+    jmp print_string
+_0:
+    ret
+    
+
+
+
 exit:
     int 0x20                    ; exit
+
+
+title_string:       db " 2048 Bootsector ",0
+credits_string:     db " by Bruno `CrociDB` Croci ",0

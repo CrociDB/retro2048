@@ -43,10 +43,10 @@ main_loop:
 
     ;
     ; Draw box function
-    ; Params: (1) Line offset       (bp+2)
-    ;         (2) Row offset        (bp+4)
-    ;         (3) Box dimensions    (bp+6)
-    ;         (4) Char/Color        (bp+8)
+    ; Params: (bp+2) - line offset
+    ;         (bp+4) - row offset
+    ;         (bp+6) - box dimensions
+    ;         (bp+8) - char/Color
     ;
 draw_box:
     mov bp, sp                      ; Store the base of the stack, to get arguments
@@ -61,7 +61,6 @@ draw_box:
     xor cx, cx                      ; Resets CX
     mov cl, dl                      ; Copy the width of the box
     add di, [bp+4]                  ; Adds the line offset to DI
-
 draw_char:
     stosw
     loop draw_char
@@ -69,7 +68,7 @@ draw_char:
     add word [bp+2], 160            ; Add a line (180 bytes) to offset
     sub word [bp+6], 0x0100         ; Remove one line of height - it's 0x0100 because height is stored in the msb
     mov cx, [bp+6]                  ; Copy the size of the box to test
-    cmp ch, 0                       ; Test the hight of the box
+    cmp ch, 0                       ; Test the height of the box
     jnz draw_box                    ; If not zero, draw the rest of the box
     ret
 
@@ -81,14 +80,14 @@ draw_char:
     ;           CX - position/offset
     ;
 print_string:
-    mov di, cx
-    mov al, byte [bp]
-    cmp al, 0
-    jz _0
+    mov di, cx                      ; Adds offset to DI
+    mov al, byte [bp]               ; Copies the char to AL (AH already contains color data)
+    cmp al, 0                       ; If the char is zero, string finished
+    jz _0                           ; ... return
     stosw
-    add cx, 2
-    inc bp
-    jmp print_string
+    add cx, 2                       ; Adds more 2 bytes the offset
+    inc bp                          ; Increments the string pointer
+    jmp print_string                ; Repeats the rest of the string
 _0:
     ret
     
@@ -96,7 +95,7 @@ _0:
 
 
 exit:
-    int 0x20                    ; exit
+    int 0x20                        ; exit
 
 
 title_string:       db " 2048 Bootsector ",0

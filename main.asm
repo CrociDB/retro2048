@@ -38,6 +38,12 @@ clear:
     mov cx, 3948
     call print_string
 
+    ; Number test
+    push 0x6c00
+    push 320
+    push 666
+    call print_number
+
 main_loop:
     jmp exit
 
@@ -92,6 +98,45 @@ _0:
     ret
     
 
+    ;
+    ; Print number function
+    ; Params:   (bp+2) - num value
+    ;           (bp+4) - position/offset
+    ;           (bp+6) - background/foreground color
+    ;
+print_number:
+    mov bp, sp                      ; Copying stack pointer to get parameters
+    xor cx, cx                      ; Resetting CX, it will be our zero-left-counter
+    mov bx, 1000                    ; Set decimal to 1000 - our function will only print up to 9999
+    mov di, [bp+4]                  ; Setting the screen offset
+_1:    
+    xor dx, dx                      ; DX has to be zero, because DIV by WORD will use DXAX 
+    mov ax, [bp+2]                  ; Get the value to print
+    div bx                          ; Divide by the current decimal
+    mov dx, ax                      ; Copies decimal total to DL (to subtract from value later)
+    add cx, ax                      ; Adds every value: important to ignore 0 on the left
+    cmp cx, 0                       ; If counter is zero, that means we're still on zeroes on left
+    jz _3                           ; ... then skip printing
+    add al, '0'                     ; Add char `0` to value
+    mov ah, byte [bp+7]             ; Copy color info
+    stosw
+_3:
+    cmp bx, 1                       ; If our decimal is already 1, then the function is over
+    jz _2                           ; ... return
+
+    xor ax, ax                      ; Subtracting the current decimal value from number to print
+    mov al, dl                      ; Copying the printed value
+    mul bx                          ; Multiply by the current decimal
+    sub [bp+2], ax                  ; Finally subtract the total value
+
+    xor ax, ax                      ; Now we need to divide our decimal by 10
+    mov ax, bx                      ; Copies the value to AX, where DIV works
+    mov bx, 10                      ; Stores 10 on BX
+    div bl                          ; Divides decimal by 10
+    mov bl, al                      ; Saves it back to BX
+    jmp _1                          ; Repeat print
+_2:
+    ret
 
 
 exit:

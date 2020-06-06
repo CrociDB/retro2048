@@ -7,7 +7,7 @@ start:
 
 setup_screen:
     mov ax, 0xb800              ; Segment for the video data
-    mov ds, ax
+    ; mov ds, ax
     mov es, ax
 
     cld
@@ -18,13 +18,6 @@ setup_screen:
 clear:
     stosw
     loop clear
-
-    ; Drawing the box
-    push 0x3800
-    push 0x0F25                 ; Rect size 37x15 (25x0F)
-    push 44                     ; Offset 23 chars on left
-    push 160 * 5                ; Offset 7 lines on top
-    call draw_box
 
     ; Game title
     mov ah, 0x6c
@@ -38,26 +31,95 @@ clear:
     mov cx, 3948
     call print_string
 
-    ; Number test
-    push 0x6c00
-    push 320
-    push 666
-    call print_number
-
 main_loop:
+    ; Drawing the box
+    push 0x3800
+    push 0x1125                 ; Rect size 37x16 (25x11)
+    push 44                     ; Offset 22 chars on left
+    push 160 * 5                ; Offset 5 lines on top
+    call draw_box
+
+    call print_board
+
     jmp exit
+
+
+    ;
+    ; Print board function
+    ;
+print_board:
+    mov cx, 17                          ; The amount of cells
+_loop_cell:
+    push cx                             ; Saves the counter, because print_cell uses it
+    mov al, cl                          ; Saves the id to AL, input to print_cell
+    dec al                              ; Decreases 1 from the counter
+    call print_cell
+    pop cx
+    loop _loop_cell
+
+    ret
+
+
+    ;
+    ; Print cell function
+    ; Params:   AL - board index
+    ;
+print_cell:
+    ; First print the box
+    push 0x1F00                         ; Box color
+    push 0x0306                         ; Box size
+
+    xor ah, ah                          ; Resets AH
+    mov byte [current_cell], al         ; Saves the current cell id
+
+    mov bx, board_offset_row            ; Gets the row offset
+    xor cx, cx                          ; Resets CX
+    mov cl, al
+    shl cl, 1                           ; Multiplies the current cell id by two because the row offset is a word
+    add bx, cx                          ; Adds the id to the pointer
+    mov cx, word [bx]                   ; Gets the offset value
+    mov [current_offset], cx            ; Saves the offset value, to be used on the number
+    push cx                             ; Pushes to draw_box function
+    
+    mov bx, board_offset_column         ; Gets the column offset
+    add bx, ax                          ; Gets the cell id
+    xor cx, cx                          ; Resets CX
+    mov cl, byte [bx]                   ; Copies the value of the offset (byte)
+    add [current_offset], cx            ; Adds it to current_offset, to be used on the number
+    push cx                             ; Pushes to draw_box function
+
+    call draw_box
+    add sp, 6                           ; Remove parameters from stack, but not the color
+
+    mov bx, [current_offset]            ; Gets the current total screen offset
+    add bx, 162                         ; Adds one line and one char
+    push bx                             ; Pushes current position offset to print_number function
+
+    mov bx, board                       ; Pointer to the board
+    xor ah, ah                          ; Resets AH
+    mov al, byte [current_cell]         ; Gets cell id
+    add bx, ax                          ; Adds cell id to pointer
+    xor cx, cx                          ; Resets CX
+    mov cl, byte [bx]                   ; Gets actual on the board
+    push cx                             ; Pushes to print_number function
+
+    call print_number
+    add sp, 6                           ; Removes parameters from stack
+
+    ret
+
 
     ;
     ; Draw box function
-    ; Params: (bp+2) - line offset
-    ;         (bp+4) - row offset
-    ;         (bp+6) - box dimensions
-    ;         (bp+8) - char/Color
+    ; Params:   [bp+2] - row offset
+    ;           [bp+4] - column offset
+    ;           [bp+6] - box dimensions
+    ;           [bp+8] - char/Color
     ;
 draw_box:
     mov bp, sp                      ; Store the base of the stack, to get arguments
     xor di, di                      ; Sets DI to screen origin
-    add di, [bp+2]                  ; Adds the line offset to DI
+    add di, [bp+2]                  ; Adds the row offset to DI
 
     mov dx, [bp+6]                  ; Copy dimensions of the box
     mov ax, [bp+8]                  ; Copy the char/color to print
@@ -100,9 +162,9 @@ _0:
 
     ;
     ; Print number function
-    ; Params:   (bp+2) - num value
-    ;           (bp+4) - position/offset
-    ;           (bp+6) - background/foreground color
+    ; Params:   [bp+2] - num value
+    ;           [bp+4] - position/offset
+    ;           [bp+6] - background/foreground color
     ;
 print_number:
     mov bp, sp                      ; Copying stack pointer to get parameters
@@ -145,3 +207,24 @@ exit:
 
 title_string:       db " 2048 Bootsector ",0
 credits_string:     db " by Bruno `CrociDB` Croci ",0
+
+current_cell:       db 0x00
+current_offset:     dw 0x0000
+
+board:
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,2,0
+    db 0,2,0,0
+
+board_offset_row:
+    dw 160*6,  160*6,  160*6,  160*6
+    dw 160*10,  160*10,  160*10,  160*10
+    dw 160*14, 160*14, 160*14, 160*14
+    dw 160*18, 160*18, 160*18, 160*18
+
+board_offset_column:
+    db 48, 66, 84, 102
+    db 48, 66, 84, 102
+    db 48, 66, 84, 102
+    db 48, 66, 84, 102

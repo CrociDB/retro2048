@@ -41,7 +41,31 @@ main_loop:
 
     call print_board
 
+check_input:
+    mov ah, 0                   ; Get keystroke
+    int 0x16                    ; BIOS service to get keyboard
+
+    cmp ah, 0x48                ; Up key
+    je _up
+    cmp ah, 0x4b                ; Left key
+    je _left
+    cmp ah, 0x4d                ; Right key
+    je _right
+    cmp ah, 0x50                ; Down key
+    je _down
+
+    cmp ah, 0x1                 ; Esc key
+    jne check_input
     jmp exit
+
+_up:
+    jmp main_loop
+_left:
+    jmp main_loop
+_right:
+    jmp main_loop
+_down:
+    jmp main_loop
 
 
     ;

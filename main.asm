@@ -59,14 +59,147 @@ check_input:
     jmp exit
 
 _up:
+    mov word [current_offset], 4
+
+    mov ax, board
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+1
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+2
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+3
+    mov word [current_id], ax
+    call compute_board_line
+
     jmp main_loop
 _left:
+    mov word [current_offset], 1
+
+    mov ax, board
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+4
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+8
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+12
+    mov word [current_id], ax
+    call compute_board_line
+
     jmp main_loop
 _right:
+    mov word [current_offset], -1
+
+    mov ax, board+3
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+7
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+11
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+15
+    mov word [current_id], ax
+    call compute_board_line
+
     jmp main_loop
 _down:
+    mov word [current_offset], -4
+
+    mov ax, board+12
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+13
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+14
+    mov word [current_id], ax
+    call compute_board_line
+
+    mov ax, board+15
+    mov word [current_id], ax
+    call compute_board_line
+
     jmp main_loop
 
+
+
+    ;
+    ; Compute board line function - this will compute a line/column of the board
+    ; Params -  [current_id] - start cell ID
+    ;           [current_offset] - offset between items of the line (direction)
+    ;
+compute_board_line:
+    mov cx, 3                           ; The amount of iterations we'll do
+    
+_item:
+    mov bp, [current_id]
+    mov ah, byte [bp]
+    cmp ah, 0
+    jne _add
+
+; ---- MOVE
+_move:
+    mov bx, cx
+    mov bp, [current_id]
+
+_move_find:
+    add bp, [current_offset]
+    mov dl, byte [bp]
+    cmp dl, 0
+    je _skip_move
+    mov byte [bp], 0
+    mov bp, [current_id]
+    mov byte [bp], dl
+
+_skip_move:
+    dec bx
+    cmp bx, 0
+    jne _move_find
+
+; ---- ADD
+_add:
+    mov bx, cx
+    mov bp, [current_id]
+
+_add_find:
+    add bp, [current_offset]
+    mov dl, byte [bp]
+    cmp dl, 0
+    je _skip_add
+    cmp dl, ah
+    jne _return
+    mov byte [bp], 0
+    mov bp, [current_id]
+    inc byte [bp]
+
+_skip_add:
+    dec bx
+    cmp bx, 0
+    jne _add_find
+
+_return:
+    mov bx, [current_offset]
+    add [current_id], bx
+    loop _item
+    ret
 
     ;
     ; Print board function
@@ -124,8 +257,14 @@ print_cell:
     mov al, byte [current_cell]         ; Gets cell id
     add bx, ax                          ; Adds cell id to pointer
     xor cx, cx                          ; Resets CX
-    mov cl, byte [bx]                   ; Gets actual on the board
-    push cx                             ; Pushes to print_number function
+    mov cl, byte [bx]                   ; Gets actual value on the board
+    cmp cl, 0
+    mov ax, 1
+    jne _pc0
+    mov ax, 0
+_pc0:
+    shl ax, cl
+    push ax                             ; Pushes to print_number function
 
     call print_number
     add sp, 6                           ; Removes parameters from stack
@@ -232,14 +371,15 @@ exit:
 title_string:       db " 2048 Bootsector ",0
 credits_string:     db " by Bruno `CrociDB` Croci ",0
 
+current_id:         dw 0x0000
 current_cell:       db 0x00
 current_offset:     dw 0x0000
 
 board:
+    db 0,1,0,0
     db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,2,0
-    db 0,2,0,0
+    db 0,0,1,0
+    db 0,1,0,0
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6

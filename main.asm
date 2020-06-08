@@ -227,8 +227,16 @@ print_cell:
     mov [current_cell_pointer], bp
     add [current_cell_pointer], al
 
+    xor ch, ch
+    mov bx, [current_cell_pointer]      ; Pointer to the board
+    mov cl, byte [bx]                   ; Gets actual value on the board
+    xor bx, bx
+    mov bp, board_colors                ; Gets the pointer to the first color
+    add bp, cx                          ; Adds the value id to color pointer
+    mov bh, [bp]                        ; Gets the value of the color
+
     ; First print the box
-    push 0x1F00                         ; Box color
+    push bx                             ; Box color
     push 0x0306                         ; Box size
 
     mov bx, board_offset_row            ; Gets the row offset
@@ -369,14 +377,14 @@ exit:
 title_string:       db " 2048 Bootsector ",0
 credits_string:     db " by Bruno `CrociDB` Croci ",0
 
-current_cell_pointer:         dw 0x0000
-current_offset:     dw 0x0000
+current_cell_pointer:           dw 0x0000
+current_offset:                 dw 0x0000
 
 board:
-    db 0,1,0,0
-    db 0,0,0,0
-    db 0,0,1,0
-    db 0,1,0,0
+    db 0,2,0,6
+    db 0,8,3,0
+    db 4,9,1,5
+    db 0,1,0,7
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6
@@ -391,5 +399,5 @@ board_offset_column:
     db 48, 66, 84, 102
 
 board_colors:
-    ;  2     4      8      16      32      64      128     256      512     1024        2048
-    db 0x1f, 0x1e,  0x2f,  0x2e,   0x3f,   0x3e,   0x4f,   0x4e,    0x5f,   0x5e,       0x5f
+    ;  0    2     4      8      16      32      64      128     256      512     1024        2048
+    db 0x1f, 0x2f, 0x2a,  0x4f,  0x4a,   0x5f,   0x5a,   0x6f,   0x6a,    0x7f,   0x7a,       0x8f

@@ -62,19 +62,19 @@ _up:
     mov word [current_offset], 4
 
     mov ax, board
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+1
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+2
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+3
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     jmp main_loop
@@ -82,19 +82,19 @@ _left:
     mov word [current_offset], 1
 
     mov ax, board
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+4
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+8
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+12
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     jmp main_loop
@@ -102,19 +102,19 @@ _right:
     mov word [current_offset], -1
 
     mov ax, board+3
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+7
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+11
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+15
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     jmp main_loop
@@ -122,19 +122,19 @@ _down:
     mov word [current_offset], -4
 
     mov ax, board+12
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+13
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+14
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     mov ax, board+15
-    mov word [current_id], ax
+    mov word [current_cell_pointer], ax
     call compute_board_line
 
     jmp main_loop
@@ -143,14 +143,14 @@ _down:
 
     ;
     ; Compute board line function - this will compute a line/column of the board
-    ; Params -  [current_id] - start cell ID
+    ; Params -  [current_cell_pointer] - start cell ID
     ;           [current_offset] - offset between items of the line (direction)
     ;
 compute_board_line:
     mov cx, 3                           ; The amount of iterations we'll do
     
 _item:
-    mov bp, [current_id]
+    mov bp, [current_cell_pointer]
     mov ah, byte [bp]
     cmp ah, 0
     jne _add
@@ -158,7 +158,7 @@ _item:
 ; ---- MOVE
 _move:
     mov bx, cx
-    mov bp, [current_id]
+    mov bp, [current_cell_pointer]
 
 _move_find:
     add bp, [current_offset]
@@ -166,7 +166,7 @@ _move_find:
     cmp dl, 0
     je _skip_move
     mov byte [bp], 0
-    mov bp, [current_id]
+    mov bp, [current_cell_pointer]
     mov byte [bp], dl
 
 _skip_move:
@@ -177,7 +177,7 @@ _skip_move:
 ; ---- ADD
 _add:
     mov bx, cx
-    mov bp, [current_id]
+    mov bp, [current_cell_pointer]
 
 _add_find:
     add bp, [current_offset]
@@ -187,7 +187,7 @@ _add_find:
     cmp dl, ah
     jne _return
     mov byte [bp], 0
-    mov bp, [current_id]
+    mov bp, [current_cell_pointer]
     inc byte [bp]
 
 _skip_add:
@@ -197,7 +197,7 @@ _skip_add:
 
 _return:
     mov bx, [current_offset]
-    add [current_id], bx
+    add [current_cell_pointer], bx
     loop _item
     ret
 
@@ -222,12 +222,14 @@ _loop_cell:
     ; Params:   AL - board index
     ;
 print_cell:
+    xor ah, ah                          ; Resets AH
+    mov bp, board
+    mov [current_cell_pointer], bp
+    add [current_cell_pointer], al
+
     ; First print the box
     push 0x1F00                         ; Box color
     push 0x0306                         ; Box size
-
-    xor ah, ah                          ; Resets AH
-    mov byte [current_cell], al         ; Saves the current cell id
 
     mov bx, board_offset_row            ; Gets the row offset
     xor cx, cx                          ; Resets CX
@@ -252,11 +254,7 @@ print_cell:
     add bx, 162                         ; Adds one line and one char
     push bx                             ; Pushes current position offset to print_number function
 
-    mov bx, board                       ; Pointer to the board
-    xor ah, ah                          ; Resets AH
-    mov al, byte [current_cell]         ; Gets cell id
-    add bx, ax                          ; Adds cell id to pointer
-    xor cx, cx                          ; Resets CX
+    mov bx, [current_cell_pointer]                ; Pointer to the board
     mov cl, byte [bx]                   ; Gets actual value on the board
     cmp cl, 0
     mov ax, 1
@@ -371,8 +369,7 @@ exit:
 title_string:       db " 2048 Bootsector ",0
 credits_string:     db " by Bruno `CrociDB` Croci ",0
 
-current_id:         dw 0x0000
-current_cell:       db 0x00
+current_cell_pointer:         dw 0x0000
 current_offset:     dw 0x0000
 
 board:
@@ -392,3 +389,7 @@ board_offset_column:
     db 48, 66, 84, 102
     db 48, 66, 84, 102
     db 48, 66, 84, 102
+
+board_colors:
+    ;  2     4      8      16      32      64      128     256      512     1024        2048
+    db 0x1f, 0x1e,  0x2f,  0x2e,   0x3f,   0x3e,   0x4f,   0x4e,    0x5f,   0x5e,       0x5f

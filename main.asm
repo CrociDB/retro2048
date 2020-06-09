@@ -168,7 +168,7 @@ _move_find:
     mov byte [bp], 0
     mov bp, [current_cell_pointer]
     mov byte [bp], dl
-    jmp _add
+    jmp _item
 
 _skip_move:
     dec bx
@@ -383,8 +383,8 @@ current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
 board:
-    db 0,0,0,0
-    db 0,0,0,0
+    db 0,1,1,0
+    db 0,3,2,1
     db 0,0,1,0
     db 0,1,0,0
 

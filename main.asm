@@ -22,14 +22,14 @@ clear:
     ; Game title
     mov ah, 0x6c
     mov bp, title_string
-    mov cx, 64
+    mov cx, 72
     call print_string
 
-    ; Credits
-    mov ah, 0x0c
-    mov bp, credits_string
-    mov cx, 3948
-    call print_string
+    ; ; Credits
+    ; mov ah, 0x0c
+    ; mov bp, credits_string
+    ; mov cx, 3948
+    ; call print_string
 
 main_loop:
     ; Drawing the box
@@ -376,17 +376,17 @@ exit:
     int 0x20                        ; exit
 
 
-title_string:       db " 2048 Bootsector ",0
-credits_string:     db " by Bruno `CrociDB` Croci ",0
+title_string:       db " 2 0 4 8 ",0
+; credits_string:     db " by Bruno `CrociDB` Croci ",0
 
 current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
 board:
-    db 0,3,2,1
-    db 0,0,2,0
-    db 0,2,0,0
-    db 2,0,0,1
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,1,0
+    db 0,1,0,0
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6
@@ -402,4 +402,4 @@ board_offset_column:
 
 board_colors:
     ;  0    2     4      8      16      32      64      128     256      512     1024        2048
-    db 0x1f, 0x2f, 0x2a,  0x4f,  0x4a,   0x5f,   0x5a,   0x6f,   0x6a,    0x7f,   0x7a,       0x8f
+    db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e

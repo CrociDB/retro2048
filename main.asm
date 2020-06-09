@@ -77,6 +77,11 @@ _up:
     mov word [current_cell_pointer], ax
     call compute_board_line
 
+    mov word [current_offset], -1
+    mov ax, board+15
+    mov word [current_cell_pointer], ax
+    call check_board
+
     jmp main_loop
 _left:
     mov word [current_offset], 1
@@ -96,6 +101,11 @@ _left:
     mov ax, board+12
     mov word [current_cell_pointer], ax
     call compute_board_line
+
+    mov word [current_offset], -1
+    mov ax, board+15
+    mov word [current_cell_pointer], ax
+    call check_board
 
     jmp main_loop
 _right:
@@ -117,6 +127,11 @@ _right:
     mov word [current_cell_pointer], ax
     call compute_board_line
 
+    mov word [current_offset], 1
+    mov ax, board
+    mov word [current_cell_pointer], ax
+    call check_board
+
     jmp main_loop
 _down:
     mov word [current_offset], -4
@@ -137,7 +152,39 @@ _down:
     mov word [current_cell_pointer], ax
     call compute_board_line
 
+    mov word [current_offset], 1
+    mov ax, board
+    mov word [current_cell_pointer], ax
+    call check_board
+
     jmp main_loop
+
+
+    ;
+    ; Check board function - will check victory/loss and add new value
+    ; Params -  [current_cell_pointer] - start cell ID
+    ;           [current_offset] - offset between items of the line (direction)
+    ;
+check_board:
+    mov cx, 17
+    mov bp, [current_cell_pointer]
+    mov ax, [current_offset]
+_check_item:
+    mov dl, byte [bp]
+    cmp dl, 0
+    je _normal
+    add bp, ax
+    loop _check_item
+    jmp _gameover
+
+_normal:
+    mov byte [bp], 1
+    ret
+
+_gameover:
+    ret
+
+
 
 
 
@@ -383,8 +430,8 @@ current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
 board:
-    db 0,1,1,0
-    db 0,3,2,1
+    db 0,0,0,0
+    db 0,0,0,0
     db 0,0,1,0
     db 0,1,0,0
 

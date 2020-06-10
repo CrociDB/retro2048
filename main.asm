@@ -31,6 +31,12 @@ clear:
     ; mov cx, 3948
     ; call print_string
 
+    ; Score
+    mov ah, 0x08
+    mov bp, score_string
+    mov cx, 160*4+44
+    call print_string
+
 main_loop:
     ; Drawing the box
     push 0x3800
@@ -269,6 +275,7 @@ _add_find:
     mov byte [bp], 0
     mov bp, [current_cell_pointer]
     inc byte [bp]
+    add byte [score], dl
     jmp _return
 
 _skip_add:
@@ -294,6 +301,12 @@ _loop_cell:
     call print_cell
     pop cx
     loop _loop_cell
+
+    push 0x8f00
+    push 160*4+58
+    push word [score]
+    call print_number
+    add sp, 6
 
     ret
 
@@ -456,16 +469,19 @@ exit:
 
 
 title_string:       db " 2 0 4 8 ",0
+score_string:       db "Score: ",0
 ; credits_string:     db " by Bruno `CrociDB` Croci ",0
 
 current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
+score: dw 0x0000
+
 board:
-    db 2,3,3,2
-    db 0,2,0,1
+    db 0,0,0,0
+    db 0,0,0,0
     db 0,0,1,0
-    db 0,1,0,1
+    db 0,1,0,0
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6

@@ -82,6 +82,14 @@ _up:
     mov word [current_cell_pointer], ax
     call check_board
 
+    call print_board
+    xor dx, dx
+    mov cx, 5
+    mov ah, 0x86
+    int 0x0015
+    mov ah, 0x0c
+    int 0x0021
+
     jmp main_loop
 _left:
     mov word [current_offset], 1
@@ -101,6 +109,14 @@ _left:
     mov ax, board+12
     mov word [current_cell_pointer], ax
     call compute_board_line
+
+    call print_board
+    xor dx, dx
+    mov cx, 5
+    mov ah, 0x86
+    int 0x0015
+    mov ah, 0x0c
+    int 0x0021
 
     mov word [current_offset], -1
     mov ax, board+15
@@ -127,6 +143,14 @@ _right:
     mov word [current_cell_pointer], ax
     call compute_board_line
 
+    call print_board
+    xor dx, dx
+    mov cx, 5
+    mov ah, 0x86
+    int 0x0015
+    mov ah, 0x0c
+    int 0x0021
+
     mov word [current_offset], 1
     mov ax, board
     mov word [current_cell_pointer], ax
@@ -151,6 +175,14 @@ _down:
     mov ax, board+15
     mov word [current_cell_pointer], ax
     call compute_board_line
+
+    call print_board
+    xor dx, dx
+    mov cx, 5
+    mov ah, 0x86
+    int 0x0015
+    mov ah, 0x0c
+    int 0x0021
 
     mov word [current_offset], 1
     mov ax, board
@@ -430,10 +462,10 @@ current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
 board:
-    db 0,0,0,0
-    db 0,0,0,0
+    db 2,3,3,2
+    db 0,2,0,1
     db 0,0,1,0
-    db 0,1,0,0
+    db 0,1,0,1
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6

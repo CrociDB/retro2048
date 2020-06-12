@@ -204,19 +204,19 @@ _down:
     ;           [current_offset] - offset between items of the line (direction)
     ;
 check_board:
-    mov cx, 17
-    mov bp, [current_cell_pointer]
-    mov ax, [current_offset]
+    mov cx, 17                          ; All the cells
+    mov bp, [current_cell_pointer]      ; Getting the first cell pointer
+    mov ax, [current_offset]            ; Getting the offset for the board iteration
 _check_item:
-    mov dl, byte [bp]
-    cmp dl, 0
-    je _normal
-    add bp, ax
-    loop _check_item
-    jmp _gameover
+    mov dl, byte [bp]                   ; Getting the value at the current cell
+    cmp dl, 0                           ; Comparing that to 0
+    je _normal                          ; ... if it is zero, then add a new cell
+    add bp, ax                          ; Go to the next cell
+    loop _check_item                    ; Loops while there are still cells left
+    jmp _gameover                       ; No cells left, game over?
 
 _normal:
-    mov byte [bp], 1
+    mov byte [bp], 1                    ; Adds a new cell with value 1
     ret
 
 _gameover:

@@ -198,54 +198,52 @@ _down:
 
 
     ;
-    ; Check board function - will check victory/loss and add new value
-    ; Params -  [current_cell_pointer] - start cell ID
-    ;           [current_offset] - offset between items of the line (direction)
+    ; Add new cell function
+    ;  it will first count how many empty cells there are, then get a random cell and adds a random value
     ;
 add_new_cell:
-    mov cx, 17
-    mov bp, board
-    mov bl, 0
+    mov cx, 17                          ; Sets the board size               
+    mov bp, board                       ; Gets the pointer to the board
+    xor bl, bl                          ; Initializes the zero counter
 _count_empty:
-    mov dl, byte [bp]
-    inc bp
-    cmp dl, 0
-    jne _count_continue
-    inc bl
+    mov dl, byte [bp]                   ; Gets the value of the current cell
+    cmp dl, 0                           ; Checks if the current cell is empty
+    jne _count_continue                 ; ... if not empty, iterate
+    inc bl                              ; ... if empty, increase zero counter
 _count_continue:
-    loop _count_empty
-    cmp bl, 0
-    je _add_new_cell_exit
+    inc bp                              ; Increases the pointer to the next cell
+    loop _count_empty                   ; Iterates counter
+    cmp bl, 0                           ; Checks if there are empty cells
+    je _add_new_cell_exit               ; ... if no empty cells, just exit
     
-    mov ah, 0x00
+    mov ah, 0x00                        ; BIOS service to get system time
     int 0x1a
 
-    xor bh, bh
-    mov ax, dx
-    xor dx, dx
-    div bx
-    mov bh, dl
+    mov ax, dx                          ; Copies the time fetched by interruption
+    xor dx, dx                          ; Resets DX because DIV will use DXAX
+    div bx                              ; AX = (DXAX) / bx ; DX = remainder
+    mov bh, dl                          ; Gets the remainder of the division in BH
 
-    mov cx, 16
-    mov bp, board
-    xor bl, bl
+    mov cx, 16                          ; Set she board size iterator - we don't need to iterate all the board
+    mov bp, board                       ; Gets the pointer to the board
+    xor bl, bl                          ; Initializes the zero counter
 
 _check_item:
-    mov dl, byte [bp]
-    cmp dl, 0
-    jne _check_item_loop
-    cmp bl, bh
-    je _add_and_exit
-    inc bl
+    mov dl, byte [bp]                   ; Gets the value of the current cell
+    cmp dl, 0                           ; Checks if it's an empty cell
+    jne _check_item_loop                ; ... if not, iterates
+    cmp bl, bh                          ; Compares if the current counter is the randomized value selected
+    je _add_and_exit                    ; ... if so, adds new cell and exit
+    inc bl                              ; Increases the current zero counter
 
 _check_item_loop:
-    inc bp
-    loop _check_item
+    inc bp                              ; Increases the pointer to the board
+    loop _check_item                    ; Iterates item adding
 
 _add_and_exit:
-    and al, 1
-    inc al
-    mov byte [bp], al
+    and al, 1                           ; Gets one bit of the divided value (our so called random)
+    inc al                              ; Adds 1 to it, it it's either 1 or 2 (cell value 2 or 4)
+    mov byte [bp], al                   ; Set the above value to the board
 
 _add_new_cell_exit:
     ret

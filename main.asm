@@ -7,7 +7,6 @@ start:
 
 setup_screen:
     mov ax, 0xb800              ; Segment for the video data
-    ; mov ds, ax
     mov es, ax
 
     cld
@@ -20,7 +19,7 @@ clear:
     loop clear
 
     ; Game title
-    mov ah, 0x6c
+    mov ah, 0x67
     mov bp, title_string
     mov cx, 72
     call print_string
@@ -83,11 +82,6 @@ _up:
     mov word [current_cell_pointer], ax
     call compute_board_line
 
-    mov word [current_offset], -1
-    mov ax, board+15
-    mov word [current_cell_pointer], ax
-    call check_board
-
     call print_board
     xor dx, dx
     mov cx, 5
@@ -95,6 +89,11 @@ _up:
     int 0x0015
     mov ah, 0x0c
     int 0x0021
+
+    mov word [current_offset], -1
+    mov ax, board+15
+    mov word [current_cell_pointer], ax
+    call add_new_cell
 
     jmp main_loop
 _left:
@@ -127,7 +126,7 @@ _left:
     mov word [current_offset], -1
     mov ax, board+15
     mov word [current_cell_pointer], ax
-    call check_board
+    call add_new_cell
 
     jmp main_loop
 _right:
@@ -160,7 +159,7 @@ _right:
     mov word [current_offset], 1
     mov ax, board
     mov word [current_cell_pointer], ax
-    call check_board
+    call add_new_cell
 
     jmp main_loop
 _down:
@@ -193,7 +192,7 @@ _down:
     mov word [current_offset], 1
     mov ax, board
     mov word [current_cell_pointer], ax
-    call check_board
+    call add_new_cell
 
     jmp main_loop
 
@@ -203,25 +202,53 @@ _down:
     ; Params -  [current_cell_pointer] - start cell ID
     ;           [current_offset] - offset between items of the line (direction)
     ;
-check_board:
+add_new_cell:
     mov cx, 17
-    mov bp, [current_cell_pointer]
-    mov ax, [current_offset]
+    mov bp, board
+    mov bl, 0
+_count_empty:
+    mov dl, byte [bp]
+    inc bp
+    cmp dl, 0
+    jne _count_continue
+    inc bl
+_count_continue:
+    loop _count_empty
+    cmp bl, 0
+    je _add_new_cell_exit
+    
+    mov ah, 0x00
+    int 0x1a
+
+    xor bh, bh
+    mov ax, dx
+    xor dx, dx
+    div bx
+    mov bh, dl
+
+    mov cx, 16
+    mov bp, board
+    xor bl, bl
+
 _check_item:
     mov dl, byte [bp]
     cmp dl, 0
-    je _normal
-    add bp, ax
+    jne _check_item_loop
+    cmp bl, bh
+    je _add_and_exit
+    inc bl
+
+_check_item_loop:
+    inc bp
     loop _check_item
-    jmp _gameover
 
-_normal:
-    mov byte [bp], 1
+_add_and_exit:
+    and al, 1
+    inc al
+    mov byte [bp], al
+
+_add_new_cell_exit:
     ret
-
-_gameover:
-    ret
-
 
 
 

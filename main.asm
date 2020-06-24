@@ -23,7 +23,6 @@ setup_screen:
     mov cx, 160*4+44
     call print_string
 
-main_loop:
     ; Drawing the box
     push 0x3800
     push 0x1125                 ; Rect size 37x16 (25x11)
@@ -31,6 +30,7 @@ main_loop:
     push 160 * 5                ; Offset 5 lines on top
     call draw_box
 
+main_loop:
     call print_board
 
 check_input:
@@ -70,12 +70,7 @@ _up:
     call compute_board_line
 
     call print_board
-    xor dx, dx
-    mov cx, 5
-    mov ah, 0x86
-    int 0x0015
-    mov ah, 0x0c
-    int 0x0021
+    call wait_time
 
     mov word [current_offset], -1
     mov ax, board+15
@@ -103,12 +98,7 @@ _left:
     call compute_board_line
 
     call print_board
-    xor dx, dx
-    mov cx, 5
-    mov ah, 0x86
-    int 0x0015
-    mov ah, 0x0c
-    int 0x0021
+    call wait_time
 
     mov word [current_offset], -1
     mov ax, board+15
@@ -136,12 +126,7 @@ _right:
     call compute_board_line
 
     call print_board
-    xor dx, dx
-    mov cx, 5
-    mov ah, 0x86
-    int 0x0015
-    mov ah, 0x0c
-    int 0x0021
+    call wait_time
 
     mov word [current_offset], 1
     mov ax, board
@@ -169,12 +154,7 @@ _down:
     call compute_board_line
 
     call print_board
-    xor dx, dx
-    mov cx, 5
-    mov ah, 0x86
-    int 0x0015
-    mov ah, 0x0c
-    int 0x0021
+    call wait_time
 
     mov word [current_offset], 1
     mov ax, board
@@ -182,6 +162,19 @@ _down:
     call add_new_cell
 
     jmp main_loop
+
+
+    ;
+    ; Wait time function
+    ;
+wait_time:
+    xor dx, dx
+    mov cx, 5
+    mov ah, 0x86
+    int 0x0015
+    mov ah, 0x0c
+    int 0x0021
+    ret
 
 
     ;
@@ -398,7 +391,6 @@ draw_box:
 
     mov dx, [bp+6]                  ; Copy dimensions of the box
     mov ax, [bp+8]                  ; Copy the char/color to print
-    xor bx, bx
     mov bl, dh                      ; Get the height of the box
 
     xor cx, cx                      ; Resets CX
@@ -409,7 +401,7 @@ draw_char:
     loop draw_char
 
     add word [bp+2], 160            ; Add a line (180 bytes) to offset
-    sub word [bp+6], 0x0100         ; Remove one line of height - it's 0x0100 because height is stored in the msb
+    sub byte [bp+7], 0x01           ; Remove one line of height - it's 0x0100 because height is stored in the msb
     mov cx, [bp+6]                  ; Copy the size of the box to test
     cmp ch, 0                       ; Test the height of the box
     jnz draw_box                    ; If not zero, draw the rest of the box
@@ -482,7 +474,6 @@ exit:
 
 title_string:       db " 2 0 4 8 ",0
 score_string:       db "Score: ",0
-; credits_string:     db " by Bruno `CrociDB` Croci ",0
 
 current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
@@ -497,7 +488,7 @@ board:
 
 board_offset_row:
     dw 160*6,  160*6,  160*6,  160*6
-    dw 160*10,  160*10,  160*10,  160*10
+    dw 160*10, 160*10, 160*10, 160*10
     dw 160*14, 160*14, 160*14, 160*14
     dw 160*18, 160*18, 160*18, 160*18
 

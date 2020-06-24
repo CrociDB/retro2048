@@ -52,22 +52,9 @@ check_input:
 
 _up:
     mov word [current_offset], 4
-
     mov ax, board
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+1
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+2
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+3
-    mov word [current_cell_pointer], ax
-    call compute_board_line
+    mov dx, 1
+    call compute_movement
 
     call print_board
     call wait_time
@@ -80,22 +67,9 @@ _up:
     jmp main_loop
 _left:
     mov word [current_offset], 1
-
     mov ax, board
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+4
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+8
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+12
-    mov word [current_cell_pointer], ax
-    call compute_board_line
+    mov dx, 4
+    call compute_movement
 
     call print_board
     call wait_time
@@ -106,24 +80,12 @@ _left:
     call add_new_cell
 
     jmp main_loop
+
 _right:
     mov word [current_offset], -1
-
     mov ax, board+3
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+7
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+11
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+15
-    mov word [current_cell_pointer], ax
-    call compute_board_line
+    mov dx, 4
+    call compute_movement
 
     call print_board
     call wait_time
@@ -134,24 +96,12 @@ _right:
     call add_new_cell
 
     jmp main_loop
+
 _down:
     mov word [current_offset], -4
-
     mov ax, board+12
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+13
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+14
-    mov word [current_cell_pointer], ax
-    call compute_board_line
-
-    mov ax, board+15
-    mov word [current_cell_pointer], ax
-    call compute_board_line
+    mov dx, 1
+    call compute_movement
 
     call print_board
     call wait_time
@@ -229,6 +179,23 @@ _add_new_cell_exit:
     ret
 
 
+
+    ;
+    ; Compute movement function
+    ; Params:   [current_offset]    - the offset between elements
+    ;           DX                  - line offset
+    ;           AX                  - initial cell pointer
+    ;
+compute_movement:
+    mov cx, 4
+_compute_line:
+    mov word [current_cell_pointer], ax
+    pusha
+    call compute_board_line
+    popa
+    add ax, dx
+    loop _compute_line
+    ret
 
 
     ;

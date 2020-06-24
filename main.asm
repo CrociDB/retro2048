@@ -51,63 +51,30 @@ check_input:
     jmp exit
 
 _up:
-    mov word [current_offset], 4
-    mov ax, board
-    mov dx, 1
-    call compute_movement
-
-    call print_board
-    call wait_time
-
-    mov word [current_offset], -1
-    mov ax, board+15
-    mov word [current_cell_pointer], ax
-    call add_new_cell
-
-    jmp main_loop
+    mov bp, movement_up
+    jmp _movement
 _left:
-    mov word [current_offset], 1
-    mov ax, board
-    mov dx, 4
-    call compute_movement
-
-    call print_board
-    call wait_time
-
-    mov word [current_offset], -1
-    mov ax, board+15
-    mov word [current_cell_pointer], ax
-    call add_new_cell
-
-    jmp main_loop
-
+    mov bp, movement_left
+    jmp _movement
 _right:
-    mov word [current_offset], -1
-    mov ax, board+3
-    mov dx, 4
-    call compute_movement
-
-    call print_board
-    call wait_time
-
-    mov word [current_offset], 1
-    mov ax, board
-    mov word [current_cell_pointer], ax
-    call add_new_cell
-
-    jmp main_loop
-
+    mov bp, movement_right
+    jmp _movement
 _down:
-    mov word [current_offset], -4
-    mov ax, board+12
-    mov dx, 1
+    mov bp, movement_down
+
+_movement:
+    mov ax, [bp]
+    mov word [current_offset], ax
+    mov ax, [bp+2]
+    mov dx, [bp+4]
     call compute_movement
 
     call print_board
     call wait_time
 
-    mov word [current_offset], 1
-    mov ax, board
+    mov ax, [bp+6]
+    mov word [current_offset], ax
+    mov ax, [bp+8]
     mov word [current_cell_pointer], ax
     call add_new_cell
 
@@ -466,3 +433,8 @@ board_offset_column:
 board_colors:
     ;  0    2     4      8      16      32      64      128     256      512     1024        2048
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
+
+movement_up:    dw 4, board, 1, -1, board+15
+movement_left:  dw 1, board, 4, -1, board+15
+movement_right: dw -1, board+3, 4, 1, board
+movement_down:  dw -4, board+12, 1, 1, board

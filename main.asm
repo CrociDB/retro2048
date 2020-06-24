@@ -263,7 +263,7 @@ print_cell:
     xor ch, ch
     mov bx, [current_cell_pointer]      ; Pointer to the board
     mov cl, byte [bx]                   ; Gets actual value on the board
-    xor bx, bx
+    xor bl, bl
     mov bp, board_colors                ; Gets the pointer to the first color
     add bp, cx                          ; Adds the value id to color pointer
     mov bh, [bp]                        ; Gets the value of the color
@@ -283,7 +283,7 @@ print_cell:
     
     mov bx, board_offset_column         ; Gets the column offset
     add bx, ax                          ; Gets the cell id
-    xor cx, cx                          ; Resets CX
+    xor ch, ch                          ; Resets CX
     mov cl, byte [bx]                   ; Copies the value of the offset (byte)
     add [current_offset], cx            ; Adds it to current_offset, to be used on the number
     push cx                             ; Pushes to draw_box function
@@ -327,7 +327,7 @@ draw_box:
     mov ax, [bp+8]                  ; Copy the char/color to print
     mov bl, dh                      ; Get the height of the box
 
-    xor cx, cx                      ; Resets CX
+    xor ch, ch                      ; Resets CX
     mov cl, dl                      ; Copy the width of the box
     add di, [bp+4]                  ; Adds the line offset to DI
     rep stosw
@@ -385,12 +385,11 @@ _3:
     cmp bx, 1                       ; If our decimal is already 1, then the function is over
     jz _2                           ; ... return
 
-    xor ax, ax                      ; Subtracting the current decimal value from number to print
+    xor ah, ah                      ; Subtracting the current decimal value from number to print
     mov al, dl                      ; Copying the printed value
     mul bx                          ; Multiply by the current decimal
     sub [bp+2], ax                  ; Finally subtract the total value
 
-    xor ax, ax                      ; Now we need to divide our decimal by 10
     mov ax, bx                      ; Copies the value to AX, where DIV works
     mov bx, 10                      ; Stores 10 on BX
     div bl                          ; Divides decimal by 10

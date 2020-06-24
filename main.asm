@@ -11,24 +11,11 @@ setup_screen:
 
     cld
 
-    ; Clears the screen
-    mov cx, 2000
-    mov ax, 0x0800
-clear:
-    stosw
-    loop clear
-
     ; Game title
     mov ah, 0x67
     mov bp, title_string
     mov cx, 72
     call print_string
-
-    ; ; Credits
-    ; mov ah, 0x0c
-    ; mov bp, credits_string
-    ; mov cx, 3948
-    ; call print_string
 
     ; Score
     mov ah, 0x08

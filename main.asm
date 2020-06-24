@@ -396,9 +396,7 @@ draw_box:
     xor cx, cx                      ; Resets CX
     mov cl, dl                      ; Copy the width of the box
     add di, [bp+4]                  ; Adds the line offset to DI
-draw_char:
-    stosw
-    loop draw_char
+    rep stosw
 
     add word [bp+2], 160            ; Add a line (180 bytes) to offset
     sub byte [bp+7], 0x01           ; Remove one line of height - it's 0x0100 because height is stored in the msb

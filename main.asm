@@ -30,6 +30,7 @@ setup_screen:
     push 160 * 5                ; Offset 5 lines on top
     call draw_box
 
+
 main_loop:
     call print_board
 
@@ -240,12 +241,13 @@ _loop_cell:
     call print_cell
     pop cx
     loop _loop_cell
+    
 
     push 0x8f00
     push 160*4+58
-    push word [score]
+    mov ax, word [score]
     call print_number
-    add sp, 6
+    add sp, 4
 
     ret
 
@@ -298,16 +300,12 @@ print_cell:
     mov bx, [current_cell_pointer]                ; Pointer to the board
     mov cl, byte [bx]                   ; Gets actual value on the board
     cmp cl, 0
+    je _pc_exit
     mov ax, 1
-    jne _pc0
-    mov ax, 0
-_pc0:
     shl ax, cl
-    push ax                             ; Pushes to print_number function
-
     call print_number
-    add sp, 6                           ; Removes parameters from stack
-
+_pc_exit:
+    add sp, 4                           ; Removes parameters from stack
     ret
 
 
@@ -361,42 +359,37 @@ _0:
 
     ;
     ; Print number function
-    ; Params:   [bp+2] - num value
-    ;           [bp+4] - position/offset
-    ;           [bp+6] - background/foreground color
+    ; Params:   AX      - num value
+    ;           [bp+2]  - position/offset
+    ;           [bp+4]  - background/foreground color
     ;
 print_number:
-    mov bp, sp                      ; Copying stack pointer to get parameters
-    xor cx, cx                      ; Resetting CX, it will be our zero-left-counter
-    mov bx, 1000                    ; Set decimal to 1000 - our function will only print up to 9999
-    mov di, [bp+4]                  ; Setting the screen offset
-_1:    
-    xor dx, dx                      ; DX has to be zero, because DIV by WORD will use DXAX 
-    mov ax, [bp+2]                  ; Get the value to print
-    div bx                          ; Divide by the current decimal
-    mov dx, ax                      ; Copies decimal total to DL (to subtract from value later)
-    add cx, ax                      ; Adds every value: important to ignore 0 on the left
-    cmp cx, 0                       ; If counter is zero, that means we're still on zeroes on left
-    jz _3                           ; ... then skip printing
+    cmp ax, 0
+    je _p_exit
+    mov bp, sp
+    mov di, [bp+2]
+    xor cx, cx
+_get_unit:
+    cmp ax, 0
+    je _print
+    xor dx, dx
+    mov bx, 10
+    div bx
+    xor bx, bx
+    mov bl, dl
+    push bx
+    inc cx
+    jmp _get_unit
+
+_print:
+    pop ax
     add al, '0'                     ; Add char `0` to value
-    mov ah, byte [bp+7]             ; Copy color info
+    mov ah, byte [bp+5]             ; Copy color info
     stosw
-_3:
-    cmp bx, 1                       ; If our decimal is already 1, then the function is over
-    jz _2                           ; ... return
-
-    xor ah, ah                      ; Subtracting the current decimal value from number to print
-    mov al, dl                      ; Copying the printed value
-    mul bx                          ; Multiply by the current decimal
-    sub [bp+2], ax                  ; Finally subtract the total value
-
-    mov ax, bx                      ; Copies the value to AX, where DIV works
-    mov bx, 10                      ; Stores 10 on BX
-    div bl                          ; Divides decimal by 10
-    mov bl, al                      ; Saves it back to BX
-    jmp _1                          ; Repeat print
-_2:
+    loop _print
+_p_exit:
     ret
+
 
 
 exit:

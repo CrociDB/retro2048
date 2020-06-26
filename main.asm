@@ -403,8 +403,10 @@ _0:
     ;           [bp+4]  - background/foreground color
     ;
 print_number:
+%ifdef dos
     cmp ax, 0
     je _p_exit
+%endif
     mov bp, sp
     mov di, [bp+2]
     xor cx, cx

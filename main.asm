@@ -235,11 +235,11 @@ _return:
 print_board:
     mov cx, 17                          ; The amount of cells
 _loop_cell:
-    push cx                             ; Saves the counter, because print_cell uses it
+    pusha                               ; Saves the counter, because print_cell uses it
     mov al, cl                          ; Saves the id to AL, input to print_cell
     dec al                              ; Decreases 1 from the counter
     call print_cell
-    pop cx
+    popa
     loop _loop_cell
     
 

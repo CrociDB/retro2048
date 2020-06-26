@@ -111,6 +111,7 @@ wait_time:
     ;  it will first count how many empty cells there are, then get a random cell and adds a random value
     ;
 add_new_cell:
+%ifdef dos
     mov cx, 17                          ; Sets the board size               
     mov bp, board                       ; Gets the pointer to the board
     xor bx, bx                          ; Initializes the zero counter
@@ -156,6 +157,20 @@ _add_and_exit:
 
 _add_new_cell_exit:
     ret
+
+%else
+    mov cx, 17                          ; Sets the board size               
+    mov bp, board                       ; Gets the pointer to the board
+_count_empty:
+    mov ah, byte [bp]                   ; Gets the value of the current cell
+    cmp ah, 0                           ; Checks if the current cell is empty
+    je _add_and_exit
+    inc bp                              ; Increases the pointer to the next cell
+    loop _count_empty                   ; Iterates counter
+_add_and_exit:
+    mov byte [bp], 1                    ; Set the above value to the board
+    ret
+%endif
 
 
 
@@ -444,10 +459,13 @@ board_colors:
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
 %endif
 
+board:
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
+
 movement_up:    dw 4, board, 1
 movement_left:  dw 1, board, 4
 movement_right: dw -1, board+3, 4
 movement_down:  dw -4, board+12, 1
-
-board:
-    db 0

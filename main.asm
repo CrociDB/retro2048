@@ -1,4 +1,10 @@
+%ifdef dos                      ; DOS version
     org 0x0100
+%elifdef bootsector             ; Bootsector version
+    org 0x7c00
+%else                           ; Bootsector version, but for DOS
+    org 0x0100
+%endif
 
 start:
     ; Set 80-25 text mode
@@ -11,6 +17,7 @@ setup_screen:
 
     cld
 
+%ifdef dos
     ; Game title
     mov ah, 0x67
     mov bp, title_string
@@ -29,10 +36,13 @@ setup_screen:
     push 44                     ; Offset 22 chars on left
     push 160 * 5                ; Offset 5 lines on top
     call draw_box
+%endif
 
+%ifdef dos
     mov word [current_offset], 1
     mov word [current_cell_pointer], board
     call add_new_cell
+%endif
 
 main_loop:
     mov word [current_offset], 1
@@ -216,7 +226,9 @@ _add_find:
     mov byte [bp], 0
     mov bp, [current_cell_pointer]
     inc byte [bp]
+%ifdef dos
     add byte [score], dl
+%endif
     jmp _return
 
 _skip_add:
@@ -243,12 +255,13 @@ _loop_cell:
     popa
     loop _loop_cell
     
-
+%ifdef dos
     push 0x8f00
     push 160*4+58
     mov ax, word [score]
     call print_number
     add sp, 4
+%endif
 
     ret
 
@@ -267,9 +280,13 @@ print_cell:
     mov bx, [current_cell_pointer]      ; Pointer to the board
     mov cl, byte [bx]                   ; Gets actual value on the board
     xor bl, bl
+%ifdef dos
     mov bp, board_colors                ; Gets the pointer to the first color
     add bp, cx                          ; Adds the value id to color pointer
     mov bh, [bp]                        ; Gets the value of the color
+%else
+    mov bh, 0x2f                        ; Gets the value of the color
+%endif
 
     ; First print the box
     push bx                             ; Box color
@@ -343,6 +360,7 @@ draw_box:
     ret
 
 
+%ifdef dos
     ;
     ; Print string function
     ; Params:   AH - background/foreground color
@@ -360,6 +378,7 @@ print_string:
     jmp print_string                ; Repeats the rest of the string
 _0:
     ret
+%endif
     
 
     ;
@@ -401,13 +420,17 @@ exit:
     int 0x20                        ; exit
 
 
+%ifdef dos
 title_string:       db " 2 0 4 8 ",0
 score_string:       db "Score: ",0
+%endif
 
 current_cell_pointer:           dw 0x0000
 current_offset:                 dw 0x0000
 
+%ifdef dos
 score: dw 0x0000
+%endif
 
 board_offset_row:
     dw 160*6,  160*10, 160*14, 160*18
@@ -415,9 +438,11 @@ board_offset_row:
 board_offset_column:
     db 48, 66, 84, 102
 
+%ifdef dos
 board_colors:
     ;  0    2     4      8      16      32      64      128     256      512     1024        2048
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
+%endif
 
 movement_up:    dw 4, board, 1
 movement_left:  dw 1, board, 4

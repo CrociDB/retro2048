@@ -7,11 +7,17 @@
 %endif
 
 start:
+%ifdef bootsector
+    push cs
+    push cs
+    pop ds
+    pop ss
+%endif
+
     ; Set 80-25 text mode
     mov ax, 0x0002
     int 0x10
 
-setup_screen:
     mov ax, 0xb800              ; Segment for the video data
     mov es, ax
 
@@ -88,11 +94,14 @@ _movement:
     call compute_movement
 
     call print_board
+%ifdef dos
     call wait_time
+%endif
 
     jmp main_loop
 
 
+%ifdef dos
     ;
     ; Wait time function
     ;
@@ -104,6 +113,7 @@ wait_time:
     mov ah, 0x0c
     int 0x0021
     ret
+%endif
 
 
     ;
@@ -471,3 +481,8 @@ movement_up:    dw 4, board, 1
 movement_left:  dw 1, board, 4
 movement_right: dw -1, board+3, 4
 movement_down:  dw -4, board+12, 1
+
+%ifdef bootsector
+    times 510-($-$$) db 0x4f
+    db 0x55, 0xaa                   ; bootable signature 
+%endif

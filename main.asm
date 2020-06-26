@@ -30,8 +30,15 @@ setup_screen:
     push 160 * 5                ; Offset 5 lines on top
     call draw_box
 
+    mov word [current_offset], 1
+    mov word [current_cell_pointer], board
+    call add_new_cell
 
 main_loop:
+    mov word [current_offset], 1
+    mov word [current_cell_pointer], board
+    call add_new_cell
+
     call print_board
 
 check_input:
@@ -73,12 +80,6 @@ _movement:
     call print_board
     call wait_time
 
-    mov ax, [bp+6]
-    mov word [current_offset], ax
-    mov ax, [bp+8]
-    mov word [current_cell_pointer], ax
-    call add_new_cell
-
     jmp main_loop
 
 
@@ -102,7 +103,7 @@ wait_time:
 add_new_cell:
     mov cx, 17                          ; Sets the board size               
     mov bp, board                       ; Gets the pointer to the board
-    xor bl, bl                          ; Initializes the zero counter
+    xor bx, bx                          ; Initializes the zero counter
 _count_empty:
     mov dl, byte [bp]                   ; Gets the value of the current cell
     cmp dl, 0                           ; Checks if the current cell is empty
@@ -408,12 +409,6 @@ current_offset:                 dw 0x0000
 
 score: dw 0x0000
 
-board:
-    db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,1,0
-    db 0,1,0,0
-
 board_offset_row:
     dw 160*6,  160*10, 160*14, 160*18
 
@@ -424,7 +419,10 @@ board_colors:
     ;  0    2     4      8      16      32      64      128     256      512     1024        2048
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
 
-movement_up:    dw 4, board, 1, -1, board+15
-movement_left:  dw 1, board, 4, -1, board+15
-movement_right: dw -1, board+3, 4, 1, board
-movement_down:  dw -4, board+12, 1, 1, board
+movement_up:    dw 4, board, 1
+movement_left:  dw 1, board, 4
+movement_right: dw -1, board+3, 4
+movement_down:  dw -4, board+12, 1
+
+board:
+    db 0

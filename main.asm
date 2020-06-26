@@ -275,14 +275,18 @@ print_cell:
     push 0x0306                         ; Box size
 
     mov bx, board_offset_row            ; Gets the row offset
-    xor cx, cx                          ; Resets CX
+    xor ch, ch                          ; Resets CX
     mov cl, al
+    shr cl, 2                           ; Divides by four since the offset is the same for every 4 items
     shl cl, 1                           ; Multiplies the current cell id by two because the row offset is a word
     add bx, cx                          ; Adds the id to the pointer
     mov cx, word [bx]                   ; Gets the offset value
     mov [current_offset], cx            ; Saves the offset value, to be used on the number
     push cx                             ; Pushes to draw_box function
-    
+
+    mov bl, 4
+    div bl                              ; Divides current index by 4
+    shr ax, 8                           ; And get the remainder, because the column offset cycles 0-3
     mov bx, board_offset_column         ; Gets the column offset
     add bx, ax                          ; Gets the cell id
     xor ch, ch                          ; Resets CX
@@ -409,17 +413,12 @@ board:
     db 0,0,0,0
     db 0,0,1,0
     db 0,1,0,0
+    shr cl, 2                           ; Multiplies the current cell id by two because the row offset is a word
 
 board_offset_row:
-    dw 160*6,  160*6,  160*6,  160*6
-    dw 160*10, 160*10, 160*10, 160*10
-    dw 160*14, 160*14, 160*14, 160*14
-    dw 160*18, 160*18, 160*18, 160*18
+    dw 160*6,  160*10, 160*14, 160*18
 
 board_offset_column:
-    db 48, 66, 84, 102
-    db 48, 66, 84, 102
-    db 48, 66, 84, 102
     db 48, 66, 84, 102
 
 board_colors:

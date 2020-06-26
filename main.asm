@@ -27,7 +27,7 @@ start:
     ; Game title
     mov ah, 0x67
     mov bp, title_string
-    mov cx, 72
+    mov cx, 62
     call print_string
 
     ; Score
@@ -448,7 +448,7 @@ exit:
 
 
 %ifdef dos
-title_string:       db " 2 0 4 8 ",0
+title_string:       db " r e t r o 2 0 4 8 ",0
 score_string:       db "Score: ",0
 %endif
 

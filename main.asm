@@ -413,7 +413,6 @@ board:
     db 0,0,0,0
     db 0,0,1,0
     db 0,1,0,0
-    shr cl, 2                           ; Multiplies the current cell id by two because the row offset is a word
 
 board_offset_row:
     dw 160*6,  160*10, 160*14, 160*18

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="retro2048 - a 2048 game clone that runs on a boot sector, written in 8086 assembly">
+    <meta name="author" content="CrociDB">
+    <script src="js/libv86.js"></script>
+
+    <title>retro2048 - 2048 game clone that runs on a boot sector</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container main-container">
+        <pre>
+          _            ___   ___  _  _   ___  
+         | |          |__ \ / _ \| || | / _ \ 
+ _ __ ___| |_ _ __ ___   ) | | | | || || (_) |
+| '__/ _ \ __| '__/ _ \ / /| | | |__   _> _ < 
+| | |  __/ |_| | | (_) / /_| |_| |  | || (_) |
+|_|  \___|\__|_|  \___/____|\___/   |_| \___/ 
+        </pre>
+
+        <h1 class="mt-5 hidden">retro2048</h1>
+        <p class="lead">a clone of the new classic 2048 game, written in 8086 assembly for DOS and the bootsector</p>
+
+        <p style="text-align:center;">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/lexTohTMSNw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </p>
+        
+        
+        <p style="text-align:center;">
+        <button type="button" class="btn btn-primary btn-lg" id="play-dos">Play DOS version online</button>
+        <button type="button" class="btn btn-primary btn-lg" disabled>Play bootsector version</button>
+        </p>
+        
+        
+        <div id="screen_container" class="hidden">
+            <div style="white-space: pre; font: 14px monospace; line-height: 14px; margin-left: 25px"></div>
+            <canvas style="display: none"></canvas>
+        </div>
+
+        <script>
+            window.onload = function () {
+                document.getElementById("play-dos").onclick = () =>
+                {
+                    let screen = document.getElementById("screen_container");
+                    screen.classList.remove("hidden");
+
+                    let emulator = new V86Starter({
+                        screen_container: screen,
+                        bios: {
+                            url: "bochs-bios.bin",
+                        },
+                        vga_bios: {
+                            url: "bochs-vgabios.bin",
+                        },
+                        fda: {
+                            url: "freedos722.img",
+                        },
+                        autostart: true,
+                    });
+                }
+            }
+        </script>
+
+<h2 class="mt-5">Dependencies</h1>
+    <ul>
+        <li>nasm</li>
+        <li>make</li>
+    </ul>
+    
+<h2 class="mt-5">Building</h1>
+    
+<pre>
+make
+</pre>
+    
+    <p>This should generate three files:</p>
+    <ul>
+        <li><b>r2048.com</b>: the full version of the game with score and proper randomization on adding new cells, for DOS.</li>
+        <li><b>b2048.bin</b>: bootsector version, it's a subset of the game with less features, but still fun.</li>
+        <li><b>b2048.com</b>: the same bootsector version, but built for the DOS platform, for faster testing iterations.</li>
+    </ul>
+    
+    <h2 class="mt-5">Running</h1>
+        
+        <p>The easiest way to run is via DosBox, using <b>r2048.com</b> program. The boot version can be played with <b>qemu</b></p>
+        
+<pre>
+qemu-system-i386 -fda b2048.bin
+</pre>
+        
+<h2 class="mt-5">License</h1>
+
+<p>This code is licensed under the MIT License. Please refer to <b>LICENSE.md</b> file.</p>
+</main>
+
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">retro2048 by CrociDB - fork it on GitHub!</span>
+        </div>
+    </footer>
+</body>
+
+</html>

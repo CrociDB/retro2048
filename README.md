@@ -5,12 +5,11 @@
 | '__/ _ \ __| '__/ _ \ / /| | | |__   _> _ < 
 | | |  __/ |_| | | (_) / /_| |_| |  | || (_) |
 |_|  \___|\__|_|  \___/____|\___/   |_| \___/ 
-                                              
 ```
 
-This is an attempt to make a 2048 game clone in 8086 assembly and make it fit in a bootsector.
+This is a clone of the new classic 2048 game, written in 8086 assembly for DOS and the bootsector.
 
-For now it's a DOS game rather than a boot game.
+![retro2048](r2048.gif)
 
 # Dependencies
 
@@ -19,9 +18,22 @@ For now it's a DOS game rather than a boot game.
 
 # Building
 
-`$ make`
+```
+make
+```
 
-A `main.com` file should be created. Runs in DOS.
+This should generate three files:
+ - **`r2048.com`**: the full version of the game with score and proper randomization on adding new cells, for DOS.
+ - **`b2048.bin`**: bootsector version, it's a subset of the game with less features, but still fun.
+ - **`b2048.com`**: the same bootsector version, but built for the DOS platform, for faster testing iterations.
+
+# Running
+
+The easiest way to run is via DosBox, using `r2048.com` program. The boot version can be playing with `qemu`:
+
+```
+qemu-system-i386 -fda b2048.bin
+```
 
 # License
 

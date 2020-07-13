@@ -26,23 +26,55 @@ body {
 }
 
 .main-container {
-  background: #F2F2F2;
+  background: #FBFBFB;
   margin-bottom: 40px;
   padding-bottom: 40px;
 }
+
+.iframe-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; 
+  height: 0;
+}
+
+.iframe-container iframe {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.screen-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; 
+  height: 0;
+}
+
+.screen-container canvas {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
 
 h2 {
   margin-bottom: 20px;
 }
 
 pre {
-  background: #FEFEFE;
+  background: #EAEAEA;
   padding: 10px;
   padding-left: 20px;
   padding-right: 20px;
 }
 
 b {
-  background: #FAFAFA;
+  background: #EAEAEA;
   padding: 5px;
 }

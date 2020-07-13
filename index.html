@@ -18,7 +18,7 @@
 
     <!-- Begin page content -->
     <main role="main" class="container main-container">
-        <pre>
+        <pre style="font-size: 12px">
           _            ___   ___  _  _   ___  
          | |          |__ \ / _ \| || | / _ \ 
  _ __ ___| |_ _ __ ___   ) | | | | || || (_) |
@@ -31,13 +31,15 @@
         <p class="lead">a clone of the new classic 2048 game, written in 8086 assembly for DOS and the bootsector</p>
 
         <p style="text-align:center;">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/lexTohTMSNw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="iframe-container">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/lexTohTMSNw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
         </p>
         
         
         <p style="text-align:center;">
-        <button type="button" class="btn btn-primary btn-lg" id="play-dos">Play DOS version online</button>
-        <button type="button" class="btn btn-primary btn-lg" disabled>Play bootsector version</button>
+            <button type="button" class="btn btn-primary btn-lg" id="play-dos">Play DOS version online</button>
+            <button type="button" class="btn btn-primary btn-lg" disabled>Play bootsector version</button>
         </p>
         
         
@@ -91,7 +93,7 @@ make
     
     <h2 class="mt-5">Running</h1>
         
-        <p>The easiest way to run is via DosBox, using <b>r2048.com</b> program. The boot version can be played with <b>qemu</b></p>
+        <p>The easiest way to run is via DosBox, using <b>r2048.com</b> program. The boot version can be played with <b>qemu</b>:</p>
         
 <pre>
 qemu-system-i386 -fda b2048.bin
@@ -104,7 +106,7 @@ qemu-system-i386 -fda b2048.bin
 
     <footer class="footer">
         <div class="container">
-            <span class="text-muted">retro2048 by CrociDB - fork it on GitHub!</span>
+            <span class="text-muted">retro2048 by <a href="https://twitter.com/CrociDB">CrociDB</a> - <a href="https://github.com/CrociDB/retro2048">fork it on GitHub</a>!</span>
         </div>
     </footer>
 </body>

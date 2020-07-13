@@ -310,7 +310,8 @@ print_cell:
     add bp, cx                          ; Adds the value id to color pointer
     mov bh, [bp]                        ; Gets the value of the color
 %else
-    mov bh, 0x2f                        ; Gets the value of the color
+    mov bh, 0x5f
+    add bh, cl
 %endif
 
     ; First print the box

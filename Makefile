@@ -8,6 +8,7 @@ bootsector-dos:
 
 bootsector:
 	nasm -f bin -o b2048.bin main.asm -Dbootsector=1
+	wc -c b2048.bin
 
 clear:
 	rm r2048.bin b2048.com b2048.bin

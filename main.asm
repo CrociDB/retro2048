@@ -87,10 +87,13 @@ _down:
     mov bp, movement_down
 
 _movement:
-    mov ax, [bp]
+    mov al, byte [bp]
+    cbw
     mov word [current_offset], ax
-    mov ax, [bp+2]
-    mov dx, [bp+4]
+    mov ax, board
+    add al, byte [bp+1]
+    xor dx, dx
+    mov dl, byte [bp+2]
     call compute_movement
 
     call print_board
@@ -473,21 +476,18 @@ board_colors:
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
 %endif
 
-movement_up:    dw 4, board, 1
-movement_left:  dw 1, board, 4
-movement_right: dw -1, board+3, 4
-movement_down:  dw -4, board+12, 1
+movement_up:    db 4, 0, 1
+movement_left:  db 1, 0, 4
+movement_right: db -1, 3, 4
+movement_down:  db -4, 12, 1
+
+board:
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
 
 %ifdef bootsector
-    times 509-($-$$) db 0x4f
+    times 510-($-$$) db 0x4f
     db 0x55, 0xaa                   ; bootable signature 
-    
-board:
-    db 0
-%else
-board:
-    db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,0,0
 %endif

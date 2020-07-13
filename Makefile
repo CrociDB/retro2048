@@ -5,6 +5,7 @@ dos:
 
 bootsector-dos:
 	nasm -f bin -o b2048.com main.asm
+	wc -c b2048.com
 
 bootsector:
 	nasm -f bin -o b2048.bin main.asm -Dbootsector=1

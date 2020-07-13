@@ -310,7 +310,8 @@ print_cell:
     add bp, cx                          ; Adds the value id to color pointer
     mov bh, [bp]                        ; Gets the value of the color
 %else
-    mov bh, 0x5f
+    mov bh, 0x1f
+    shl cl, 4
     add bh, cl
 %endif
 
@@ -472,18 +473,21 @@ board_colors:
     db 0x00, 0x2f, 0x1f, 0x4f,  0x5f,   0x6f,   0x79,   0x29,   0x15,    0xce,   0xdc,       0x8e
 %endif
 
-board:
-    db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,0,0
-    db 0,0,0,0
-
 movement_up:    dw 4, board, 1
 movement_left:  dw 1, board, 4
 movement_right: dw -1, board+3, 4
 movement_down:  dw -4, board+12, 1
 
 %ifdef bootsector
-    times 510-($-$$) db 0x4f
+    times 509-($-$$) db 0x4f
     db 0x55, 0xaa                   ; bootable signature 
+    
+board:
+    db 0
+%else
+board:
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
+    db 0,0,0,0
 %endif
